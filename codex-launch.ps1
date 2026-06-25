@@ -87,9 +87,10 @@ function Update-LiteLLMConfig([string]$menuModel) {
   $yamlPath = Join-Path (Split-Path $PROXY) 'config.yaml'
 
   $wcThink = $false
+  $wcThinkDS = $false
   switch ($menuModel) {
     'deepseek-flash' { $wcModel = 'deepseek/deepseek-v4-flash'; $wcBase = 'https://api.deepseek.com'; $wcKey = 'DEEPSEEK_API_KEY' }
-    'deepseek-pro' { $wcModel = 'deepseek/deepseek-v4-pro'; $wcBase = 'https://api.deepseek.com'; $wcKey = 'DEEPSEEK_API_KEY' }
+    'deepseek-v4-pro' { $wcModel = 'deepseek/deepseek-v4-pro'; $wcBase = 'https://api.deepseek.com'; $wcKey = 'DEEPSEEK_API_KEY'; $wcThinkDS = $true }
     'nvidia-deepseek' { $wcModel = 'nvidia_nim/deepseek-ai/deepseek-v4-pro'; $wcBase = 'https://integrate.api.nvidia.com/v1'; $wcKey = 'NVIDIA_API_KEY_DEEPSEEK'; $wcThink = $true }
     'nvidia-glm' { $wcModel = 'nvidia_nim/z-ai/glm-5.1'; $wcBase = 'https://integrate.api.nvidia.com/v1'; $wcKey = 'NVIDIA_API_KEY_GLM' }
     'hf' { $wcModel = 'huggingface/Qwen/Qwen3-Coder-Next'; $wcBase = ''; $wcKey = 'HF_TOKEN' }
@@ -103,6 +104,7 @@ function Update-LiteLLMConfig([string]$menuModel) {
   $wc.Add("      api_key: os.environ/$wcKey")
   $wc.Add("      use_chat_completions_api: true")
   if ($wcThink) { $wc.Add('      extra_body: {"chat_template_kwargs": {"thinking": false}}') }
+  if ($wcThinkDS) { $wc.Add('      reasoning_effort: high'); $wc.Add('      extra_body: {"thinking": {"type": "enabled"}}') }
   $wcParams = $wc -join "`n"
 
   # actual contexts: DeepSeek 1M, NVIDIA/HF 256k — exposed via model_info so that
@@ -123,12 +125,14 @@ model_list:
       use_chat_completions_api: true
 $dsInfo
 
-  - model_name: deepseek-pro
+  - model_name: deepseek-v4-pro
     litellm_params:
       model: deepseek/deepseek-v4-pro
       api_base: https://api.deepseek.com
       api_key: os.environ/DEEPSEEK_API_KEY
       use_chat_completions_api: true
+      reasoning_effort: high
+      extra_body: {"thinking": {"type": "enabled"}}
 $dsInfo
 
   - model_name: nvidia-deepseek
@@ -222,7 +226,7 @@ $c = Read-Host "  Your choice (1-7)"
 
 switch ($c) {
   '1' { Launch-App "deepseek-flash"   "litellm"                  $true  $true }
-  '2' { Launch-App "deepseek-pro"     "litellm"                  $true  $true }
+  '2' { Launch-App "deepseek-v4-pro"     "litellm"                  $true  $true }
   '3' { Launch-App "nvidia-deepseek"  "litellm"                  $true  $true }
   '4' { Launch-App "nvidia-glm"       "litellm"                  $true  $true }
   '5' { Launch-App "hf"               "litellm"                  $true  $true }
