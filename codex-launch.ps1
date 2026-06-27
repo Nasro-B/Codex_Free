@@ -46,6 +46,36 @@ function Set-Default([string]$model, [string]$provider) {
   Set-Content -Path $CONFIG -Value $lines -Encoding utf8
 }
 
+# Manages the GLOBAL model catalog (top-level model_catalog_json).
+#  - openai  : NO global catalog -> the Codex app shows its REAL OpenAI models (gpt-5.5, gpt-5-codex...).
+#  - ollama  : global catalog = ollama-launch-models.json (ollama cloud models).
+#  - litellm : no global -> the scoped [model_providers.litellm] catalog is authoritative.
+# Without this, the global ollama-launch-models.json hid the OpenAI models behind deepseek/nvidia/hf.
+function Set-Catalog([string]$provider) {
+  $ollamaCat = "$env:USERPROFILE\.codex\ollama-launch-models.json"
+  $lines = Get-Content $CONFIG
+  $out = New-Object System.Collections.Generic.List[string]
+  $inHeader = $true
+  foreach ($ln in $lines) {
+    if ($ln -match '^\s*\[') { $inHeader = $false }
+    if ($inHeader -and $ln -match '^\s*model_catalog_json\s*=') { continue }  # remove any existing global catalog
+    $out.Add($ln)
+  }
+  if ($provider -eq 'ollama-launch-codex-app') {
+    $final = New-Object System.Collections.Generic.List[string]
+    $added = $false
+    foreach ($ln in $out) {
+      $final.Add($ln)
+      if (-not $added -and $ln -match '^\s*model_provider\s*=') {
+        $final.Add("model_catalog_json = '$ollamaCat'")   # TOML literal string: no escaping
+        $added = $true
+      }
+    }
+    $out = $final
+  }
+  Set-Content -Path $CONFIG -Value $out -Encoding utf8
+}
+
 # Removes external MCP servers (incompatible with chat APIs like DeepSeek)
 # IMPORTANT: node_repl is Codex's INTERNAL server — we NEVER touch it.
 function Strip-MCP {
@@ -199,6 +229,7 @@ function Stop-Proxy {
 
 function Launch-App([string]$model, [string]$provider, [bool]$needProxy, [bool]$withMcp) {
   Set-Default $model $provider
+  Set-Catalog $provider   # catalog: openai=native, ollama=ollama-launch-models.json, litellm=scoped
   if ($withMcp) { Restore-MCP; Write-Host "[ok] MCP/memory ACTIVE" -ForegroundColor Green }
   else { Strip-MCP; Write-Host "[i] MCP disabled for this session (the chat API doesn't support them)" -ForegroundColor DarkYellow }
   if ($needProxy) {
