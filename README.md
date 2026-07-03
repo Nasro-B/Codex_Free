@@ -1,5 +1,14 @@
 # 🚀 Codex Free
 
+> **STANDALONE EN EDITION (updated 2026-07-03)** — same unified launcher as
+> [`C:\Serveurs\Codex Gratuit`](../Codex%20Gratuit/) (Node bridge :4001 → LiteLLM :4000, scoped
+> catalog, real context windows, MCP everywhere, auto-close of the running app) but with its
+> **own isolated Codex homes**: `~/.codex-free` (free providers, auto-seeded on first run) and
+> `~/.codex-free-openai` (OpenAI account — the app asks to sign in). It never touches
+> `~/.codex` nor `~/.codex-openai`. Setup: copy `litellm-codex\.env.example` to `.env` and
+> fill in your own API keys. Note: uses the same local ports (4000/4001) as the FR launcher —
+> run one launcher at a time (switching menus restarts the stack cleanly).
+
 ![Codex Banner](assets/codex_banner.png)
 
 **Use the [OpenAI Codex](https://openai.com/codex/) application with free or cheaper LLMs** — DeepSeek, NVIDIA NIM, Hugging Face — via a transparent local proxy.

@@ -1,19 +1,21 @@
 """
-codex_deepseek_fix — LiteLLM proxy callback.
+codex_deepseek_fix — callback LiteLLM proxy.
 
-Problem: the Codex app (gpt-5.5 profile) sends, in the Responses input, PARALLEL tool
-calls followed by an assistant text message BEFORE the tool results:
+Probleme : l'app Codex (profil gpt-5.5) envoie, dans l'input Responses, des appels
+d'outils PARALLELES suivis d'un message texte assistant AVANT les resultats d'outils :
     function_call, function_call, message(assistant), function_call_output, function_call_output
-The Responses->chat bridge translates this to  assistant{tool_calls} -> assistant{content} -> tool{...},
-which DeepSeek (strict) rejects: "An assistant message with 'tool_calls' must be followed
-by tool messages...". NVIDIA / HF tolerate this, DeepSeek does not.
+Le pont Responses->chat traduit ca en  assistant{tool_calls} -> assistant{content} -> tool{...},
+ce que DeepSeek (strict) refuse : "An assistant message with 'tool_calls' must be followed
+by tool messages...". NVIDIA / HF tolerent, DeepSeek non.
 
-Fix: before translation, we reorder data["input"] so that each function_call block
-is followed IMMEDIATELY by its function_call_output; any interleaved items (message /
-reasoning) are moved AFTER the results. Stable, lossless transformation:
+Fix : avant traduction, on reordonne data["input"] pour que chaque bloc de function_call
+soit suivi IMMEDIATEMENT de ses function_call_output ; tout item intercale (message /
+reasoning) est deplace APRES les resultats. Transformation stable et sans perte :
     ... -> function_call, function_call, function_call_output, function_call_output, message, ...
-Harmless for NVIDIA/HF (sequence remains valid), so applied to all backends.
+Inoffensif pour NVIDIA/HF (sequence reste valide), donc applique a tous les backends.
 """
+import sys
+
 from litellm.integrations.custom_logger import CustomLogger
 
 
@@ -73,8 +75,9 @@ class CodexDeepseekFix(CustomLogger):
                 _item_type(x) == "function_call" for x in items
             ):
                 data["input"] = reorder_tool_calls(items)
-        except Exception:
-            pass  # never break the request because of the fix
+        except Exception as e:
+            # ne jamais casser la requete a cause du fix — mais ne plus echouer en silence
+            print(f"[codex_deepseek_fix] reorder ignore (requete inchangee): {e!r}", file=sys.stderr)
         return data
 
 

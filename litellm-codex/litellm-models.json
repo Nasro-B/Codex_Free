@@ -3,7 +3,7 @@
     {
       "slug": "deepseek-flash",
       "display_name": "DeepSeek V4 Flash (via LiteLLM)",
-      "description": "DeepSeek V4 Flash — fast, cheap, 1M context",
+      "description": "DeepSeek V4 Flash — rapide, pas cher, 1M contexte",
       "context_window": 1048576,
       "max_context_window": 1048576,
       "effective_context_window_percent": 95,
@@ -35,7 +35,7 @@
     {
       "slug": "deepseek-v4-pro",
       "display_name": "DeepSeek V4 Pro (via LiteLLM)",
-      "description": "DeepSeek V4 Pro — more powerful, 1M context",
+      "description": "DeepSeek V4 Pro — plus fort, 1M contexte",
       "context_window": 1048576,
       "max_context_window": 1048576,
       "effective_context_window_percent": 95,
@@ -67,9 +67,9 @@
     {
       "slug": "nvidia-deepseek",
       "display_name": "NVIDIA DeepSeek V4 Pro (via LiteLLM)",
-      "description": "NVIDIA DeepSeek V4 Pro — unstable, 256k context",
-      "context_window": 262144,
-      "max_context_window": 262144,
+      "description": "NVIDIA DeepSeek V4 Pro — instable, 1M contexte",
+      "context_window": 1048576,
+      "max_context_window": 1048576,
       "effective_context_window_percent": 95,
       "auto_compact_token_limit": null,
       "base_instructions": null,
@@ -99,9 +99,9 @@
     {
       "slug": "nvidia-glm",
       "display_name": "NVIDIA GLM-5.1 (via LiteLLM)",
-      "description": "NVIDIA GLM-5.1 — free, fast, 256k context",
-      "context_window": 262144,
-      "max_context_window": 262144,
+      "description": "NVIDIA GLM-5.1 — gratuit, rapide, 200k contexte",
+      "context_window": 200000,
+      "max_context_window": 200000,
       "effective_context_window_percent": 95,
       "auto_compact_token_limit": null,
       "base_instructions": null,
@@ -131,7 +131,7 @@
     {
       "slug": "hf",
       "display_name": "HuggingFace Qwen3 Coder Next (via LiteLLM)",
-      "description": "HuggingFace Qwen3 Coder Next — free, 256k context",
+      "description": "HuggingFace Qwen3 Coder Next — gratuit, 256k contexte",
       "context_window": 262144,
       "max_context_window": 262144,
       "effective_context_window_percent": 95,
