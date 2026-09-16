@@ -1,82 +1,90 @@
-# Claude_Commandes — Free Claude Code ↔ Codex bridge (DeepSeek / HF / NVIDIA)
+# Claude Commands for Codex Free EN
 
-Slash commands **inside Claude Code** that get the work done (code review, agent task) by **Codex running on a FREE provider** (DeepSeek via the LiteLLM proxy, HuggingFace, NVIDIA) — **without using your OpenAI account**.
+These slash commands run Codex CLI headless through the standalone English runtime in C:\Serveurs\Codex Free.
 
-> Why: the native `/codex:review` only uses the OpenAI reviewer (paid account). These commands instead run `codex exec` forced onto a free provider, through the local LiteLLM proxy (port 4000).
+They use:
 
-## Available commands
+- C:\Users\<user>\.codex-free;
+- LiteLLM on 127.0.0.1:4200;
+- the API bridge on 127.0.0.1:4201;
+- provider keys from C:\Serveurs\Codex Free\litellm-codex\.env.
+
+They do not use the original .codex home or the FR .codex-openai home. They never launch the Codex GUI.
+
+## Commands
 
 | Command | Purpose |
-| --- | --- |
-| `/cx-free-review [provider] [base-ref]` | Full code review (free equivalent of `/codex:review`). |
-| `/cx-free-critique [provider] [base-ref]` | **Adversarial** red-team review (equivalent of `/codex:adversarial-review`). |
-| `/cx-free-task [provider] [--write] <request>` | Any request to the Codex agent (`--write` = allow file edits). |
-| `/cx-free-status` | LiteLLM proxy (port 4000) state + available providers. |
+|---|---|
+| /cx-free-models | List model names and context windows |
+| /cx-free-health | Prepare the runtime and check the visible models |
+| /cx-free-status | Show home and proxy state without starting the GUI |
+| /cx-free-task [model] [--write] request | Run a general task |
+| /cx-free-agent [model] [--write] mission | Run an explicit Codex agent |
+| /cx-free-review [model] [base-ref] | Review repository changes |
+| /cx-free-critique [model] [base-ref] | Perform an adversarial review |
+| /cx-free-plan [model] request | Prepare a read-only implementation plan |
 
-**Providers**: `deepseek` (default), `deepseek-pro`, `hf`, `nvidia`, `glm`.
-**Review target**: no `base-ref` → uncommitted work; with `base-ref` (e.g. `main`) → branch vs base.
+The default model is deepseek-flash. Supported model names are:
 
-### Examples
+- kimi-k2.6
+- kimi-k2.7-code
+- kimi-k2.7-code-highspeed
+- kimi-k3
+- deepseek-v4-pro
+- deepseek-v4-flash
+- deepseek-flash
+- mina-flash
+- mina-low
+- mina-full
+- nvidia-deepseek
+- nvidia-glm
+- hf
 
-```
-/cx-free-review deepseek            → review uncommitted work with DeepSeek
-/cx-free-review hf main             → review your branch vs main with HuggingFace
-/cx-free-task nvidia explain what this module does
-/cx-free-critique deepseek-pro      → adversarial review with DeepSeek V4 Pro
-/cx-free-status                     → proxy up/down + served models
-```
+Aliases include deepseek, ds, deepseek-pro, deepseek-v4.1-flash, kimi, kimi-2.6, kimi-3, nvidia, glm, huggingface and qwen.
 
-## Install / re-integrate
+## Examples
 
-```powershell
-pwsh -NoProfile -File "C:\Serveurs\Codex Free\Claude_Commandes\install.ps1"
-```
+~~~text
+/cx-free-models
+/cx-free-health kimi-k2.7-code
+/cx-free-task deepseek-flash explain this module
+/cx-free-agent kimi-k2.7-code inspect this repository
+/cx-free-review kimi-k2.7-code main
+/cx-free-critique deepseek-v4-pro
+/cx-free-plan deepseek-flash prepare the migration plan
+~~~
+
+Without --write, task and agent calls use a read-only sandbox. The review, critique and plan modes are always read-only.
+
+## Installation
+
+~~~powershell
+pwsh -NoProfile -File 'C:\Serveurs\Codex Free\Claude_Commandes\install.ps1'
+~~~
 
 The installer copies:
-- `commands\*.md` → `~/.claude/commands/`  (`/cx-free-*` slash commands)
-- `scripts\cx-free.ps1` → `~/.claude/scripts/`  (the engine)
-- `prompts\*.md` → `~/.codex/prompts/`  (bonus: `/cx-review` and `/cx-critique` **inside the Codex app** itself)
 
-Restart Claude Code after installing to see the commands.
+- commands to the Claude commands directory;
+- cx-free.ps1 to the Claude scripts directory;
+- custom prompts to C:\Users\<user>\.codex-free\prompts.
+
+It never installs prompts in C:\Users\<user>\.codex.
 
 ## Prerequisites
 
-- **Codex CLI** (`codex`) installed and logged in (the OpenAI login is only a gate; LLM calls go to the free provider).
-- **litellm** installed (`uv tool install litellm`).
-- The **LiteLLM proxy** from `C:\Serveurs\Codex Free\litellm-codex` (keys in its `.env`). The helper auto-starts it on port 4000 if down (and falls back to the `Codex Gratuit` proxy folder if present).
-- `~/.codex/config.toml`: `model_reasoning_effort` must be `"xhigh"` (NOT `"max"`, removed since codex-cli 0.118.0, otherwise `codex exec` refuses the config).
+- Codex CLI available in PATH;
+- PowerShell 7;
+- Node.js;
+- LiteLLM;
+- C:\Serveurs\Codex Free\litellm-codex\.env created from .env.example;
+- C:\Users\<user>\.codex-free\config.toml, created automatically by the launcher.
 
-## How it works (under the hood)
-
-`/cx-free-*` → `cx-free.ps1` which:
-1. ensures the LiteLLM proxy (port 4000) is running (starts it otherwise);
-2. runs `codex exec -c model_provider=litellm -m <model> --sandbox <ro|write> -o <file>` → the Codex agent runs on the chosen free provider (via the proxy);
-3. returns the clean final report (MCP/skills noise is filtered out).
-
-> It does not attach to the open Codex app window: it runs a headless `codex exec` turn on the same free provider. The result (DeepSeek/HF/NVIDIA does the analysis) is identical.
+The helper imports the local .env into its process, sets CODEX_HOME to .codex-free, prepares the proxy and then calls codex exec.
 
 ## Troubleshooting
 
-- **`/cx-free-status` says DOWN** → normal if you haven't run anything; the first `/cx-free-*` starts the proxy.
-- **"proxy 4000 unavailable"** → check `litellm` is installed + the keys in `C:\Serveurs\Codex Free\litellm-codex\.env`. Manual test: `pwsh -File "C:\Serveurs\Codex Free\litellm-codex\start-litellm.ps1"`.
-- **`unknown variant 'max'`** → set `model_reasoning_effort = "xhigh"` in `~/.codex/config.toml`.
-- **MCP errors (supabase/render) in the logs** → harmless (fast-fail in headless mode), the final report stays clean.
+If status is DOWN, run health, task, agent, review, critique or plan to start the proxy. The EN edition uses 4200/4201, so it can run alongside the FR edition on 4000/4001.
 
-## Folder contents
+An HTTP 402 from Mina means the CloudZIR account balance is insufficient. An HTTP 429 means the upstream provider is rate-limiting the request.
 
-```
-Claude_Commandes/
-├── README.md            (this file — technical & troubleshooting)
-├── PRESENTATION.md      (visual overview of the features)
-├── install.ps1          (installs commands + helper + prompts)
-├── commands/            (Claude Code slash commands)
-│   ├── cx-free-review.md
-│   ├── cx-free-critique.md
-│   ├── cx-free-task.md
-│   └── cx-free-status.md
-├── scripts/
-│   └── cx-free.ps1      (the engine)
-└── prompts/             (bonus: slash commands INSIDE the Codex app)
-    ├── cx-review.md
-    └── cx-critique.md
-```
+The API key and OAuth security material are never copied by this integration. OAuth connectors must be reconnected manually on a new PC.

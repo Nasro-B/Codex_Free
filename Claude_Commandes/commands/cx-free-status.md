@@ -1,13 +1,11 @@
 ---
-description: Free Codex bridge state — LiteLLM proxy (port 4000) + available providers
+description: Show Codex Free EN home and local proxy state
 allowed-tools: Bash(pwsh:*)
 ---
-Show the state of the free Codex bridge (LiteLLM proxy + cx-free providers), without launching anything else.
+Run:
 
-Steps:
-1. Run:
-   ```
-   pwsh -NoProfile -File "$env:USERPROFILE\.claude\scripts\cx-free.ps1" -Mode status
-   ```
-2. Return the output: proxy UP/DOWN on 4000, models served by the proxy, and the list of usable providers (`deepseek`, `deepseek-pro`, `hf`, `nvidia`, `glm`).
-3. If the proxy is DOWN, remind that it auto-starts on the next `/cx-free-review`, `/cx-free-critique` or `/cx-free-task`.
+```powershell
+pwsh -NoProfile -File "$env:USERPROFILE\.claude\scripts\cx-free.ps1" -Mode status
+```
+
+Return the home, proxy ports, provider families and the fact that the GUI is not launched. This command does not start the proxy.

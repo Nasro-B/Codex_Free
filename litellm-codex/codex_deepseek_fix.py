@@ -1,5 +1,5 @@
 """
-codex_deepseek_fix — callback LiteLLM proxy.
+codex_deepseek_fix - callback LiteLLM proxy.
 
 Probleme : l'app Codex (profil gpt-5.5) envoie, dans l'input Responses, des appels
 d'outils PARALLELES suivis d'un message texte assistant AVANT les resultats d'outils :
@@ -76,7 +76,7 @@ class CodexDeepseekFix(CustomLogger):
             ):
                 data["input"] = reorder_tool_calls(items)
         except Exception as e:
-            # ne jamais casser la requete a cause du fix — mais ne plus echouer en silence
+            # ne jamais casser la requete a cause du fix, mais ne plus echouer en silence
             print(f"[codex_deepseek_fix] reorder ignore (requete inchangee): {e!r}", file=sys.stderr)
         return data
 

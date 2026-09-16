@@ -1,19 +1,18 @@
 ---
-description: ADVERSARIAL (red team) review by the Codex agent on a FREE provider (DeepSeek/HF/NVIDIA)
-argument-hint: "[deepseek|deepseek-pro|hf|nvidia|glm] [base-ref]"
+description: Adversarial read-only review through Codex Free EN
+argument-hint: "[model] [base-ref]"
 allowed-tools: Bash(pwsh:*), Read, Glob, Grep
 ---
-ADVERSARIAL review (actively hunts the worst hidden bug, with a repro scenario) by the Codex agent on a FREE provider — free equivalent of `/codex:adversarial-review`.
+Run an adversarial, read-only review through the standalone Codex Free EN runtime.
 
 Raw arguments: `$ARGUMENTS`
 
-Steps:
-1. Parse `$ARGUMENTS`:
-   - 1st token = **provider** (`deepseek` default, `deepseek-pro`, `hf`, `nvidia`, `glm`).
-   - 2nd optional token = **git base ref** (e.g. `main`).
-2. Run:
-   ```
-   pwsh -NoProfile -File "$env:USERPROFILE\.claude\scripts\cx-free.ps1" -Mode critique -Provider <provider> -Repo "<cwd>" [-Base <base>]
-   ```
-   The helper starts the proxy on port 4000 if needed. It is slow (~30s–2min); offer `run_in_background` for a large diff.
-3. Return **verbatim** the section after `===== CODEX REPORT` (analysis done by DeepSeek/HF/NVIDIA). Do not add your own analysis.
+1. Treat the first token as a model or alias when it matches one.
+2. Treat the second token as an optional Git base reference, for example `main`.
+3. Run:
+
+```powershell
+pwsh -NoProfile -File "$env:USERPROFILE\.claude\scripts\cx-free.ps1" -Mode critique -Model <model> -Repo "<cwd>" [-Base <base>]
+```
+
+Return the report from Codex Free EN, including concrete reproduction scenarios for findings. This command is read-only and does not launch the GUI.

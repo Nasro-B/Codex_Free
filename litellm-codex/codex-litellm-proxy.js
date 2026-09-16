@@ -1,9 +1,9 @@
-// codex-litellm-proxy.js — pont entre Codex et LiteLLM
+// codex-litellm-proxy.js - bridge between Codex and LiteLLM
 // Corrige /v1/models : Codex attend {"models":[...]}, LiteLLM renvoie {"data":[...]}
-// Lancement : node "C:\Serveurs\Codex Gratuit\litellm-codex\codex-litellm-proxy.js"
+// Launch: node "C:\Serveurs\Codex Free\litellm-codex\codex-litellm-proxy.js"
 const http = require('http');
-const LITELLM_PORT = 4000;
-const PROXY_PORT = 4001;
+const LITELLM_PORT = 4200;
+const PROXY_PORT = 4201;
 
 const server = http.createServer((req, res) => {
   const options = {
@@ -47,5 +47,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PROXY_PORT, '127.0.0.1', () => {
-  console.log('codex-litellm-proxy: :' + LITELLM_PORT + ' → :' + PROXY_PORT + ' (models fix)');
+  console.log('codex-litellm-proxy: :' + LITELLM_PORT + ' -> :' + PROXY_PORT + ' (models fix)');
 });

@@ -1,5 +1,5 @@
 # Starts the full proxy stack for Codex:
-#   Node bridge (port 4001, /v1/models fix) + LiteLLM (port 4000, Responses->chat bridge)
+#   Node bridge (port 4201, /v1/models fix) + LiteLLM (port 4200, Responses->chat bridge)
 # Usage: pwsh -File "start-litellm.ps1"  (normally launched by codex-launch.ps1)
 $dir = $PSScriptRoot   # auto-locates: the script finds its .env/config.yaml wherever it is
 
@@ -43,21 +43,21 @@ if ($missing.Count -gt 0) {
 }
 Write-Host "[ok] keys loaded: $($required -join ', ')"
 
-# Node bridge 4001: Codex expects {"models":[...]} on /v1/models, LiteLLM returns {"data":[...]}.
-# The home's config.toml points to 4001; the bridge forwards everything to LiteLLM on 4000.
-if (-not (Port-Up 4001)) {
+# Node bridge 4201: Codex expects {"models":[...]} on /v1/models, LiteLLM returns {"data":[...]}.
+# The home's config.toml points to 4201; the bridge forwards everything to LiteLLM on 4200.
+if (-not (Port-Up 4201)) {
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Host "[!] node not found - the 4001 bridge cannot start" -ForegroundColor Red
+    Write-Host "[!] node not found - the 4201 bridge cannot start" -ForegroundColor Red
     exit 1
   }
   Start-Process node -ArgumentList "`"$dir\codex-litellm-proxy.js`"" -WindowStyle Hidden
   $up = $false
-  for ($i = 0; $i -lt 20; $i++) { Start-Sleep -Milliseconds 500; if (Port-Up 4001) { $up = $true; break } }
-  if (-not $up) { Write-Host "[!] 4001 bridge not ready after 10s" -ForegroundColor Red; exit 1 }
+  for ($i = 0; $i -lt 20; $i++) { Start-Sleep -Milliseconds 500; if (Port-Up 4201) { $up = $true; break } }
+  if (-not $up) { Write-Host "[!] 4201 bridge not ready after 10s" -ForegroundColor Red; exit 1 }
 }
-Write-Host "[ok] Codex->LiteLLM bridge active on 4001"
+Write-Host "[ok] Codex->LiteLLM bridge active on 4201"
 
-# Start the proxy on port 4000 (loopback only)
+# Start the proxy on port 4200 (loopback only)
 # IMPORTANT: Set-Location so Python can find codex_deepseek_fix.py via CWD
 Set-Location -Path $dir
-litellm --config "$dir\config.yaml" --host 127.0.0.1 --port 4000
+litellm --config "$dir\config.yaml" --host 127.0.0.1 --port 4200

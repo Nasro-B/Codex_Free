@@ -1,5 +1,5 @@
 # ============================================
-# Codex Free — .gitignore
+# Codex Free - .gitignore
 # Securing secrets and sensitive files
 # ============================================
 
@@ -13,7 +13,7 @@ config.toml.backup-full
 mcp-backup.toml
 
 # ---- User Codex config (contains MCP tokens, personal paths) ----
-# NB: the actual config.toml is in ~/.codex/, not here,
+# NB: the active config.toml is in ~/.codex-free/, not here,
 #     but if a local copy exists, we exclude it too.
 config.toml
 
